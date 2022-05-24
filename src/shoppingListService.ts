@@ -1,79 +1,100 @@
+import { RouteObject } from "@remix-run/router";
+import { DataFunctionArgs } from "@remix-run/router/utils";
+import { redirect } from "react-router-dom";
+import z from "zod";
+
 class ShoppingListHttpError extends Error {}
 
-export interface ShoppingListItem {
-  id: string;
-  name: string;
-  qnt: number;
-  unit: string;
-  done: boolean;
-}
+const shoppingListItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  qnt: z.number(),
+  unit: z.string(),
+  done: z.boolean(),
+});
 
-export interface FilterParams {
-  page: number;
-  perPage: number;
-  search: string;
-}
+const filterParamsSchema = z.object({
+  page: z.number(),
+  perPage: z.number(),
+  search: z.string(),
+});
 
-export interface ShoppingListResponse {
-  shoppingList: ShoppingListItem[];
-  maxPage: number;
-}
+export const shoppingListResponseSchema = z.object({
+  shoppingList: z.array(shoppingListItemSchema),
+  maxPage: z.number(),
+});
+
+export type ShoppingListItem = z.infer<typeof shoppingListItemSchema>;
+export type FilterParams = z.infer<typeof filterParamsSchema>;
+export type ShoppingListResponse = z.infer<typeof shoppingListResponseSchema>;
 
 const API_URL = "/api/shoppingList";
 
 export const shoppingListService = {
-  get: (params: Partial<FilterParams> = {}, abort?: AbortController): Promise<ShoppingListResponse> => {
-    const urlParams = new URLSearchParams();
-    if (params.page) {
-      urlParams.set("page", String(params.page));
-    }
-    if (params.perPage) {
-      urlParams.set("perPage", String(params.perPage));
-    }
-    if (params.search) {
-      urlParams.set("search", params.search);
-    }
+  get: ({ request }: { request: Request }): Promise<ShoppingListResponse> => {
+    const urlParams = new URL(request.url).searchParams;
 
-    return fetch(`${API_URL}?${urlParams.toString()}`, { signal: abort?.signal }).then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
-    });
+    return fetch(`${API_URL}?${urlParams}`)
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
+      })
+      .then((response) => shoppingListResponseSchema.parse(response));
   },
-  add: (item: Omit<ShoppingListItem, "id">, abort?: AbortController) =>
-    fetch(API_URL, {
+  add: async ({ request }: { request: Request }) => {
+    const formData = await request.formData();
+    const item = {
+      name: formData.get("name"),
+      qnt: Number(formData.get("qnt")),
+      unit: formData.get("unit"),
+      done: false,
+    };
+    return fetch(API_URL, {
       method: "POST",
       body: JSON.stringify(item),
       headers: { "Content-Type": "application/json" },
-      signal: abort?.signal,
-    }).then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
-    }),
-  changeDoneStatus: ({ id, done }: Pick<ShoppingListItem, "id" | "done">, abort?: AbortController) =>
-    fetch(`${API_URL}/${id}`, {
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
+      })
+      .then((response) => shoppingListItemSchema.parse(response))
+      .then(() => redirect("/"));
+  },
+  changeDoneStatus: async ({ params, request }: DataFunctionArgs) => {
+    const urlSearchParams = new URL(request.url).searchParams;
+    const data = await request.formData();
+    const done = JSON.parse(data.get("done") as string);
+    return fetch(`${API_URL}/${params.id}`, {
       method: "PUT",
       body: JSON.stringify({ done }),
       headers: { "Content-Type": "application/json" },
-      signal: abort?.signal,
-    }).then((res) => {
-      if (res.ok) {
-        return undefined;
-      }
-      throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
-    }),
-  deleteItem: (id: string, abort?: AbortController) =>
-    fetch(`${API_URL}/${id}`, {
+    })
+      .then((res) => {
+        if (res.ok) {
+          return undefined;
+        }
+        throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
+      })
+      .then(() => redirect(`/${urlSearchParams}`));
+  },
+  deleteItem: ({ params, request }: DataFunctionArgs) => {
+    const urlSearchParams = new URL(request.url).searchParams;
+
+    return fetch(`${API_URL}/${params.id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      signal: abort?.signal,
-    }).then((res) => {
-      if (res.ok) {
-        return undefined;
-      }
-      throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
-    }),
+    })
+      .then((res) => {
+        if (res.ok) {
+          return undefined;
+        }
+        throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
+      })
+      .then(() => redirect(`/?${urlSearchParams.toString()}`));
+  },
 };

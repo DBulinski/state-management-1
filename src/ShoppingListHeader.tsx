@@ -1,35 +1,33 @@
 import { Add, Remove } from "@mui/icons-material";
 import { Box, Divider, IconButton, TextField, Typography } from "@mui/material";
 import * as React from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-interface ShoppingListHeaderProps {
-  isAddingActive: boolean;
-  toggleAddingActive: () => void;
-  search: string;
-  onSearch: (newSearch: string) => void;
-}
+export function ShoppingListHeader(): JSX.Element {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const isAddingActive = location.pathname.includes("/add");
+  const search = params.get("search") ?? "";
 
-export function ShoppingListHeader({
-  isAddingActive,
-  toggleAddingActive,
-  search,
-  onSearch,
-}: ShoppingListHeaderProps): JSX.Element {
+  const onSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    params.set("search", event.target.value);
+    setParams(params);
+  };
+
+  const toggleActive = () => {
+    navigate({ pathname: isAddingActive ? "/" : "/add", search: params.toString() });
+  };
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" padding={1}>
         <Typography variant="h4">My list</Typography>
-        <IconButton onClick={toggleAddingActive}>{isAddingActive ? <Remove /> : <Add />}</IconButton>
+        <IconButton onClick={toggleActive}>{isAddingActive ? <Remove /> : <Add />}</IconButton>
       </Box>
       <Divider />
       <Box padding={1}>
-        <TextField
-          variant="standard"
-          fullWidth
-          value={search}
-          onChange={(event) => onSearch(event.target.value)}
-          label="Search"
-        />
+        <TextField variant="standard" fullWidth value={search} onChange={onSearchChange} label="Search" />
       </Box>
       <Divider />
     </Box>

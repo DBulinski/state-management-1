@@ -1,26 +1,39 @@
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete } from "@mui/icons-material";
 import { Checkbox, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { Form, useFetcher, useNavigation, useSearchParams } from "react-router-dom";
 import { ShoppingListItem } from "./shoppingListService";
 
 interface ListItemProps {
   item: ShoppingListItem;
-  onStatusChange: (done: boolean) => void;
-  onDelete: () => void;
 }
 
-export function ShoppingListRow({ item, onStatusChange, onDelete }: ListItemProps): JSX.Element {
+export function ShoppingListRow({ item }: ListItemProps): JSX.Element {
+  const fetcher = useFetcher();
+  const navigation = useNavigation();
+  const [params] = useSearchParams();
+
+  const onStatusChange = (done: boolean) => {
+    fetcher.submit(
+      { done: done.toString() },
+      { method: "post", action: `/changeStatus/${item.id}${params.toString()}` }
+    );
+  };
+
   return (
     <ListItem
       secondaryAction={
-        <IconButton onClick={onDelete} edge="end" aria-label="Delete">
-          <Delete />
-        </IconButton>
+        <Form method="post" replace action={`/delete/${item.id}`}>
+          <IconButton disabled={navigation.state === "loading"} edge="end" type="submit" aria-label="Delete">
+            <Delete />
+          </IconButton>
+        </Form>
       }
     >
       <ListItemButton onClick={() => onStatusChange(!item.done)} dense>
         <ListItemIcon>
           <Checkbox
             edge="start"
+            disabled={navigation.state === "loading"}
             checked={item.done}
             tabIndex={-1}
             disableRipple
