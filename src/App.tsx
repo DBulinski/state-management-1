@@ -43,8 +43,6 @@ export function App() {
     fetchShoppingList().then(() => setIsLoading(false));
   }, [fetchShoppingList]);
 
-  React.useEffect(() => {}, []);
-
   const handleAdd = (item: Omit<ShoppingListItem, "id">) =>
     shoppingListService
       .add(item)
