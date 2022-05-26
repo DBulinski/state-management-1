@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import * as React from "react";
 import { Divider, List, styled } from "@mui/material";
 import { ShoppingListRow } from "./ShoppingListRow";
-import { ShoppingListItem } from "./shoppingListService";
+import { ShoppingListItem } from "../shoppingListService";
 
 const ScrollableList = styled(List)`
   flex-grow: 1;

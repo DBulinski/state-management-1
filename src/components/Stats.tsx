@@ -12,7 +12,7 @@ export function Stats({ itemsCount, doneItemsCount }: StatsProps): JSX.Element {
       <Typography component={Box} color="green" display="flex" alignItems="center" gap={1}>
         <CheckCircle /> {doneItemsCount}
       </Typography>
-      <Typography component={Box} color="red" display="flex" alignItems="center" gap={1}>
+      <Typography component={Box} color="error" display="flex" alignItems="center" gap={1}>
         <Cancel /> {itemsCount - doneItemsCount}
       </Typography>
     </Paper>

@@ -16,9 +16,9 @@ const Container = styled(Box)`
   margin: auto;
 `;
 
-export function ListContainer({ children }: React.PropsWithChildren<Record<never, never>>) {
+export function ListContainer({ children, className }: React.PropsWithChildren<{ className?: string }>) {
   return (
-    <Container>
+    <Container className={className}>
       <StyledPaper>{children}</StyledPaper>
     </Container>
   );

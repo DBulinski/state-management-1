@@ -1,6 +1,6 @@
 import { Box, Button, ButtonGroup, Pagination } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
-import { FilterParams } from "./shoppingListService";
+import { FilterParams } from "../shoppingListService";
 
 const perPageOptions = [10, 15, 20];
 
