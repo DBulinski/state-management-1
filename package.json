@@ -31,6 +31,6 @@
     "printWidth": 120
   },
   "msw": {
-    "workerDirectory": ""
+    "workerDirectory": "public"
   }
 }
