@@ -16,6 +16,7 @@ const persistData = (data: ShoppingListItem[]) => localStorage.setItem(KEY, JSON
 let shoppingList = getFromLocalStorage();
 
 export const worker = setupWorker(
+  rest.get("/api/shoppingList/units", (_, res, ctx) => res(ctx.delay(500), ctx.json(["kg", "pcs", "g"]))),
   rest.get("/api/shoppingList", (req, res, ctx) => {
     const params = new URLSearchParams(req.url.search);
     const page = Number(params.get("page") ?? 0);
@@ -25,7 +26,10 @@ export const worker = setupWorker(
       ? shoppingList.filter(({ name }) => name.toLocaleLowerCase().includes(search?.toLocaleLowerCase() ?? ""))
       : shoppingList;
     const maxPage = Math.ceil(filteredList.length / perPage);
-    return res(ctx.json({ shoppingList: filteredList.slice((page - 1) * perPage, page * perPage), maxPage }));
+    return res(
+      ctx.delay(1000),
+      ctx.json({ shoppingList: filteredList.slice((page - 1) * perPage, page * perPage), maxPage })
+    );
   }),
   rest.post<Omit<ShoppingListItem, "id">>("/api/shoppingList", (req, res, ctx) => {
     const newItem = { id: uuid(), ...req.body };

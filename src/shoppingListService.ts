@@ -76,4 +76,11 @@ export const shoppingListService = {
       }
       throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
     }),
+  getUnits: (): Promise<string[]> =>
+    fetch(`${API_URL}/units`).then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+      throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
+    }),
 };

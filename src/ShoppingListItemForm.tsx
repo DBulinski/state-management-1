@@ -1,7 +1,12 @@
+import styled from "@emotion/styled";
 import { Done } from "@mui/icons-material";
-import { Box, IconButton, ListItem, TextField } from "@mui/material";
+import { Box, IconButton, ListItem, MenuItem, TextField } from "@mui/material";
 import * as React from "react";
-import { ShoppingListItem } from "./shoppingListService";
+import { ShoppingListItem, shoppingListService } from "./shoppingListService";
+
+const StyledSelect = styled(TextField)`
+  min-width: 30%;
+`;
 
 interface ItemFormProps {
   onSubmit: (item: Omit<ShoppingListItem, "id">) => Promise<void>;
@@ -18,6 +23,11 @@ interface UsernameFormElement extends HTMLFormElement {
 
 export function ShoppingListItemForm({ onSubmit }: ItemFormProps): JSX.Element {
   const firstInputRef = React.useRef<HTMLInputElement>(null);
+  const [units, setUnits] = React.useState<string[] | null>(null);
+
+  React.useEffect(() => {
+    shoppingListService.getUnits().then(setUnits);
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<UsernameFormElement>) => {
     const { name, qnt, unit } = event.currentTarget.elements;
@@ -47,7 +57,11 @@ export function ShoppingListItemForm({ onSubmit }: ItemFormProps): JSX.Element {
         <Box display="flex" justifyContent="center" gap={2} width="100%">
           <TextField autoFocus variant="standard" label="Product" name="name" />
           <TextField variant="standard" label="Quantity" type="number" name="qnt" />
-          <TextField variant="standard" label="Unit" name="unit" />
+          <StyledSelect select variant="standard" label="Unit" name="unit">
+            {units?.map((unit) => (
+              <MenuItem value={unit}>{unit}</MenuItem>
+            ))}
+          </StyledSelect>
         </Box>
       </ListItem>
     </form>
