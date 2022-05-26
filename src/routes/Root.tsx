@@ -16,11 +16,10 @@ const StyledLinearProgress = styled(LinearProgress)<{ state: "loading" | "submit
 export function Root(): JSX.Element {
   const navigation = useNavigation();
   const { shoppingList, maxPage } = shoppingListResponseSchema.parse(useLoaderData());
-  const doneItemsCount = shoppingList.reduce((acc, item) => (item.done ? acc + 1 : acc), 0);
 
   return (
     <>
-      <Stats itemsCount={shoppingList.length} doneItemsCount={doneItemsCount} />
+      <Stats />
       <ListContainer>
         <StyledLinearProgress state={navigation.state} />
         <ShoppingListHeader />

@@ -16,15 +16,17 @@ export function ShoppingListHeader(): JSX.Element {
     setParams(params);
   };
 
-  const toggleActive = () => {
-    navigate({ pathname: isAddingActive ? "/" : "/add", search: params.toString() });
-  };
+  const toggleActive = () => navigate({ pathname: isAddingActive ? "/" : "/add", search: params.toString() });
 
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" padding={1}>
         <Typography variant="h4">My list</Typography>
-        <IconButton disabled={navigation.state !== "idle"} onClick={toggleActive}>
+        <IconButton
+          aria-label={isAddingActive ? "Close adding form" : "Open adding form"}
+          disabled={navigation.state !== "idle"}
+          onClick={toggleActive}
+        >
           {isAddingActive ? <Remove /> : <Add />}
         </IconButton>
       </Box>

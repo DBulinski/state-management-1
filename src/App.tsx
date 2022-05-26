@@ -14,15 +14,17 @@ export const routes = {
   CHANGE_STATUS: "/changeStatus",
 };
 
+function Fallback() {
+  return (
+    <ListContainer>
+      <LinearProgress />
+    </ListContainer>
+  );
+}
+
 export function App() {
   return (
-    <DataBrowserRouter
-      fallbackElement={
-        <ListContainer>
-          <LinearProgress />
-        </ListContainer>
-      }
-    >
+    <DataBrowserRouter fallbackElement={<Fallback />}>
       <Route path={routes.ROOT} loader={shoppingListService.get} errorElement={<ErrorBoundary />} element={<Root />}>
         <Route
           path={routes.ADD}
