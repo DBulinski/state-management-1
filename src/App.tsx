@@ -1,6 +1,7 @@
-import { LinearProgress } from "@mui/material";
 import * as React from "react";
+import { LinearProgress } from "@mui/material";
 import { DataBrowserRouter, Route } from "react-router-dom";
+import { AddingFallback } from "./errorHandling/AddingFallback";
 import { ErrorBoundary } from "./errorHandling/ErrorBoundary";
 import { ListContainer } from "./components/ListContainer";
 import { Root } from "./routes/Root";
@@ -31,6 +32,7 @@ export function App() {
           loader={shoppingListService.getUnits}
           action={shoppingListService.add}
           element={<AddShoppingListItem />}
+          errorElement={<AddingFallback />}
         />
         <Route path={`${routes.DELETE}/:id`} action={shoppingListService.deleteItem} />
         <Route path={`${routes.CHANGE_STATUS}/:id`} action={shoppingListService.changeDoneStatus} />

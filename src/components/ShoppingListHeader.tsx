@@ -1,6 +1,6 @@
+import * as React from "react";
 import { Add, Remove } from "@mui/icons-material";
 import { Box, Divider, IconButton, TextField, Typography } from "@mui/material";
-import * as React from "react";
 import { useLocation, useNavigate, useNavigation, useSearchParams } from "react-router-dom";
 
 export function ShoppingListHeader(): JSX.Element {

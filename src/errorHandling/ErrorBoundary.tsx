@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { ErrorOutline } from "@mui/icons-material";
 import { Button, LinearProgress } from "@mui/material";
 import * as React from "react";
-import { useRouteError, useNavigate, useNavigation, Link } from "react-router-dom";
+import { useRouteError, useNavigation, Link } from "react-router-dom";
 import { ListContainer } from "../components/ListContainer";
 
 const ErrorContainer = styled.div`

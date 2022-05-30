@@ -9,9 +9,9 @@ interface ListItemProps {
 }
 
 export function ShoppingListRow({ item }: ListItemProps): JSX.Element | null {
-  const fetcher = useFetcher();
   const navigation = useNavigation();
   const [params] = useSearchParams();
+  const fetcher = useFetcher();
 
   const onStatusChange = (done: boolean) => {
     fetcher.submit(
@@ -31,14 +31,14 @@ export function ShoppingListRow({ item }: ListItemProps): JSX.Element | null {
   return (
     <ListItem
       secondaryAction={
-        <Form method="post" replace action={`/delete/${item.id}`}>
-          <IconButton disabled={navigation.state === "loading"} edge="end" type="submit" aria-label="Delete">
+        <Form method="post" action={`/delete/${item.id}`}>
+          <IconButton disabled={navigation.state !== "idle"} edge="end" type="submit" aria-label="Delete">
             <Delete />
           </IconButton>
         </Form>
       }
     >
-      <ListItemButton disabled={navigation.state === "loading"} onClick={() => onStatusChange(!item.done)} dense>
+      <ListItemButton disabled={navigation.state !== "idle"} onClick={() => onStatusChange(!item.done)} dense>
         <ListItemIcon>
           <Checkbox
             edge="start"

@@ -6,6 +6,7 @@ import { Form, useActionData, useLoaderData, useNavigation } from "react-router-
 import z from "zod";
 import { routes } from "../App";
 import { ShoppingListRow } from "../components/ShoppingListRow";
+import { shoppingListItemSchema } from "../shoppingListService";
 
 const Fieldset = styled.fieldset`
   border: none;
@@ -17,22 +18,35 @@ const StyledSelect = styled(TextField)`
   min-width: 30%;
 `;
 
-const parseAddedData = (formData: FormData) => ({
-  id: "new",
-  name: String(formData?.get("name")),
-  qnt: Number(formData?.get("qnt")),
-  unit: String(formData?.get("unit")),
-  done: false,
-});
+const parseAddedData = (formData?: FormData) => {
+  if (!formData) {
+    throw new Error("No data has been passed during adding. Please verify your Form element");
+  }
+  return {
+    id: "new",
+    name: String(formData?.get("name")),
+    qnt: Number(formData?.get("qnt")),
+    unit: String(formData?.get("unit")),
+    done: false,
+  };
+};
+
+const actionErrorsData = z.union([
+  z.undefined(),
+  z.object({
+    message: z.string(),
+    data: z.object({ name: z.string(), qnt: z.union([z.number(), z.string()]), unit: z.string() }),
+  }),
+]);
 
 export function AddShoppingListItem(): JSX.Element {
   const units = z.array(z.string()).parse(useLoaderData());
-  const errorData = useActionData();
+  const errorData = actionErrorsData.parse(useActionData());
   const isError = Boolean(errorData?.message);
   const navigation = useNavigation();
   const isAdding = navigation.formAction === routes.ADD;
 
-  if (isAdding && navigation.formData) {
+  if (isAdding) {
     return <ShoppingListRow item={parseAddedData(navigation.formData)} />;
   }
 
@@ -73,13 +87,15 @@ export function AddShoppingListItem(): JSX.Element {
                 name="unit"
               >
                 {units.map((unit) => (
-                  <MenuItem value={unit}>{unit}</MenuItem>
+                  <MenuItem key={unit} value={unit}>
+                    {unit}
+                  </MenuItem>
                 ))}
               </StyledSelect>
             </Box>
             {isError && (
               <Typography pt={1} color="error" fontSize="small">
-                {errorData.message}
+                {errorData?.message}
               </Typography>
             )}
           </Box>

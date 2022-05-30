@@ -4,7 +4,7 @@ import z from "zod";
 
 class ShoppingListHttpError extends Error {}
 
-const shoppingListItemSchema = z.object({
+export const shoppingListItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   qnt: z.number(),
@@ -66,35 +66,37 @@ export const shoppingListService = {
     const urlSearchParams = new URL(request.url).searchParams;
     const data = await request.formData();
     const done = JSON.parse(data.get("done") as string);
-    return fetch(`${API_URL}/${params.id}`, {
+    const response = await fetch(`${API_URL}/${params.id}`, {
       method: "PUT",
       body: JSON.stringify({ done }),
       signal,
       headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => {
-        if (res.ok) {
-          return undefined;
-        }
-        throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
-      })
-      .then(() => redirect(`/${urlSearchParams}`));
+    });
+
+    if (response.ok) {
+      return redirect(`/${urlSearchParams}`);
+    }
+    throw new ShoppingListHttpError(`Request failed with status: ${response.status}`);
   },
-  deleteItem: ({ params, request, signal }: DataFunctionArgs) => {
+  deleteItem: async ({ params, request, signal }: DataFunctionArgs) => {
     const urlSearchParams = new URL(request.url).searchParams;
 
-    return fetch(`${API_URL}/${params.id}`, {
+    const response = await fetch(`${API_URL}/${params.id}`, {
       method: "DELETE",
       signal,
       headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => {
-        if (res.ok) {
-          return undefined;
-        }
-        throw new ShoppingListHttpError(`Request failed with status: ${res.status}`);
-      })
-      .then(() => redirect(`/?${urlSearchParams.toString()}`));
+    });
+    if (response.ok) {
+      return redirect(`/?${urlSearchParams.toString()}`);
+    }
+    throw new ShoppingListHttpError(`Request failed with status: ${response.status}`);
   },
-  getUnits: ({ signal }: DataFunctionArgs) => fetch(`${API_URL}/units`, { signal }),
+  getUnits: async ({ signal }: DataFunctionArgs): Promise<Response> => {
+    const response = await fetch(`${API_URL}/units`, { signal });
+    if (response.ok) {
+      return response;
+    } else {
+      throw new ShoppingListHttpError(`Request failed with status: ${response.status}`);
+    }
+  },
 };
