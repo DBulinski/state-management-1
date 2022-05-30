@@ -1,7 +1,6 @@
-import { LinearProgress } from "@mui/material";
 import * as React from "react";
+import { LinearProgress } from "@mui/material";
 import { DataBrowserRouter, Route } from "react-router-dom";
-import { ErrorBoundary } from "./errorHandling/ErrorBoundary";
 import { ListContainer } from "./components/ListContainer";
 import { Root } from "./routes/Root";
 import { AddShoppingListItem } from "./routes/AddShoppingListItem";
@@ -25,7 +24,7 @@ function Fallback() {
 export function App() {
   return (
     <DataBrowserRouter fallbackElement={<Fallback />}>
-      <Route path={routes.ROOT} loader={shoppingListService.get} errorElement={<ErrorBoundary />} element={<Root />}>
+      <Route path={routes.ROOT} loader={shoppingListService.get} element={<Root />}>
         <Route
           path={routes.ADD}
           loader={shoppingListService.getUnits}
